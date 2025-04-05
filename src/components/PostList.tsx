@@ -126,8 +126,6 @@ const PostList = () => {
 
       {isPostAdded && <p>New post successfully added!</p>}
 
-      <h3 className='subheadline'>Filter by author</h3>
-
       {isLoadingPosts && isLoadingUsers ? (
         <p>Loading posts...</p>
       ) : (
