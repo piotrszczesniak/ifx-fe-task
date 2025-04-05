@@ -10,7 +10,7 @@ To get started with the project, follow these steps:
 
 ```bash
 git clone https://github.com/piotrszczesniak/ifx-fe-task.git
-cd simple-blog
+cd ifx-fe-task
 ```
 
 2. **Install dependencies:**
