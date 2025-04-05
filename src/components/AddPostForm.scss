@@ -1,0 +1,29 @@
+.add-new-post {
+  max-width: 600px;
+  padding: 16px;
+  border: 1px solid black;
+  border-radius: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  box-shadow: 0 0 5px 1px gray;
+
+  .title {
+    margin: 0;
+  }
+
+  .form {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+
+    label {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .error {
+      color: red;
+    }
+  }
+}

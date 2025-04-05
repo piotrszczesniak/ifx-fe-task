@@ -1,0 +1,23 @@
+.blog {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+
+  .headline {
+    margin: 0;
+    padding: 0;
+  }
+
+  .subheadline {
+    margin: 0;
+  }
+
+  .posts {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+}
