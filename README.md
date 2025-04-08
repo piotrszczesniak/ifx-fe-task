@@ -1,6 +1,6 @@
 # Simple Blog
 
-This is a blog application built with React (with Vite) and TypeScript, styled with SCSS. It allows users to view and add blog posts.
+This is a blog application built with React (with Vite) and TypeScript, styled with SCSS. It allows users to view and add blog posts. Update: it also allows to filter posts by author and keyword at the same time.
 
 The application consumes the JSONPlaceholder API to fetch and display blog posts.
 
