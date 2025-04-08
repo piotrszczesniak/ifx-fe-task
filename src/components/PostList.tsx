@@ -20,8 +20,6 @@ const PostList = () => {
   const [keyword, setKeyword] = useState<string | ''>('');
   const [authorId, setAuthorId] = useState<User['id'] | null>(null);
 
-  console.log('filteredPosts', filteredPosts);
-
   const handlePostOpen = (id: Post['id']) => {
     if (openPostId === id) {
       setOpenPostId(null);
