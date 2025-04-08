@@ -6,8 +6,8 @@ import './PostItem.scss';
 type PostItemProps = {
   post: Post;
   user?: User;
-  openPostId: number | null;
-  onPostOpen: (id: number) => void;
+  openPostId: Post['id'] | null;
+  onPostOpen: (id: Post['id']) => void;
 };
 
 const PostItem = ({ post, user, openPostId, onPostOpen }: PostItemProps) => {

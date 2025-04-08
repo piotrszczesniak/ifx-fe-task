@@ -9,15 +9,20 @@ import { NewPost } from '../types/NewPost';
 
 const PostList = () => {
   const [posts, setPosts] = useState<Post[]>([]);
+  const [filteredPosts, setFilteredPosts] = useState<Post[]>([]);
   const [isLoadingPosts, setIsLoadingPosts] = useState(false);
   const [isLoadingUsers, setIsLoadingUsers] = useState(false);
   const [isAddingNewPost, setIsAddingNewPost] = useState(false);
   const [isPostAdded, setIsPostAdded] = useState(false);
   const [users, setUsers] = useState<User[]>([]);
-  const [openPostId, setOpenPostId] = useState<null | number>(null);
+  const [openPostId, setOpenPostId] = useState<null | Post['id']>(null);
   const [showForm, setShowForm] = useState(false);
+  const [keyword, setKeyword] = useState<string | ''>('');
+  const [authorId, setAuthorId] = useState<User['id'] | null>(null);
 
-  const handlePostOpen = (id: number) => {
+  console.log('filteredPosts', filteredPosts);
+
+  const handlePostOpen = (id: Post['id']) => {
     if (openPostId === id) {
       setOpenPostId(null);
     } else {
@@ -46,10 +51,11 @@ const PostList = () => {
         throw new Error(`Error ${response.status}`);
       }
 
-      const newPostData: { id: number } = await response.json();
+      const newPostData: Pick<Post, 'id'> = await response.json();
 
       if (newPostData.id) {
         setPosts((prev) => [{ ...newPost, ...newPostData }, ...prev]);
+        setFilteredPosts((prev) => [{ ...newPost, ...newPostData }, ...prev]);
         setIsPostAdded(true);
         setTimeout(() => {
           setIsPostAdded(false);
@@ -71,6 +77,20 @@ const PostList = () => {
   };
 
   useEffect(() => {
+    let result = posts;
+
+    if (keyword) {
+      result = result.filter((post) => post.body.toLowerCase().includes(keyword?.toLowerCase()));
+    }
+
+    if (authorId !== null) {
+      result = result.filter((post) => post.userId === authorId);
+    }
+
+    setFilteredPosts(result);
+  }, [keyword, authorId, posts]);
+
+  useEffect(() => {
     const fetchPosts = async () => {
       try {
         setIsLoadingPosts(true);
@@ -83,6 +103,7 @@ const PostList = () => {
         const data = await response.json();
 
         setPosts(data);
+        setFilteredPosts(data);
       } catch (error) {
         throw new Error(`There was error while fetching posts: ${error}`);
       } finally {
@@ -126,14 +147,59 @@ const PostList = () => {
 
       {isPostAdded && <p>New post successfully added!</p>}
 
+      <div className='filters'>
+        <h3 className='subheadline'>Filter by keyword (case insensitive):</h3>
+        <div className='by-keyword'>
+          <input
+            value={keyword}
+            onInput={(e) => setKeyword(e.currentTarget.value)}
+            type='text'
+            name=''
+            placeholder='Search...'
+            id='search'
+          />
+        </div>
+
+        {users && (
+          <>
+            <h3 className='subheadline'>Filter by author:</h3>
+            <div className='by-author'>
+              {users.map((user) => {
+                return (
+                  <button className={`${authorId === user.id ? 'active' : ''}`} onClick={() => setAuthorId(user.id)}>
+                    {user.username}
+                  </button>
+                );
+              })}
+            </div>
+          </>
+        )}
+
+        <>
+          <h3 className='subheadline'>Clear filters:</h3>
+          <button
+            onClick={() => {
+              setAuthorId(null);
+              setKeyword('');
+            }}
+          >
+            Show all
+          </button>
+        </>
+      </div>
+
       {isLoadingPosts && isLoadingUsers ? (
         <p>Loading posts...</p>
       ) : (
         <ul className='posts'>
-          {posts.map((post) => {
-            const user = users?.find((user) => user.id === post.userId);
-            return <PostItem post={post} key={post.id} user={user} openPostId={openPostId} onPostOpen={handlePostOpen} />;
-          })}
+          {filteredPosts.length > 0 ? (
+            filteredPosts.map((post) => {
+              const user = users?.find((user) => user.id === post.userId);
+              return <PostItem post={post} key={post.id} user={user} openPostId={openPostId} onPostOpen={handlePostOpen} />;
+            })
+          ) : (
+            <p>No posts...</p>
+          )}
         </ul>
       )}
     </div>

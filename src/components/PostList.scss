@@ -12,6 +12,18 @@
     margin: 0;
   }
 
+  .filters {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+
+    .by-author {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+  }
+
   .posts {
     list-style: none;
     padding: 0;

@@ -11,6 +11,13 @@
   box-sizing: border-box;
 }
 
+input,
+textarea {
+  border: 1px solid black;
+  border-radius: 8px;
+  padding: 8px 16px;
+}
+
 button {
   width: fit-content;
   background-color: white;
@@ -18,4 +25,8 @@ button {
   border-radius: 8px;
   padding: 8px 16px;
   cursor: pointer;
+
+  &.active {
+    box-shadow: 0 0 5px 1px gray;
+  }
 }
