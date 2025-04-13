@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
 import { User } from '../types/User';
 import './AddPostForm.scss';
-import { NewPost } from '../types/NewPost';
+import { PostPost } from '../types/Post';
 
 type AddPostFormProps = {
   users: User[];
-  onAddPost: (post: NewPost) => void;
+  onAddPost: (post: PostPost) => void;
 };
 
 const AddPostForm = ({ users, onAddPost }: AddPostFormProps) => {

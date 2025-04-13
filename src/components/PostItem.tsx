@@ -1,13 +1,13 @@
 import React from 'react';
-import { Post } from '../types/Post';
+import { GetPost } from '../types/Post';
 import { User } from '../types/User';
 import './PostItem.scss';
 
 type PostItemProps = {
-  post: Post;
+  post: GetPost;
   user?: User;
-  openPostId: Post['id'] | null;
-  onPostOpen: (id: Post['id']) => void;
+  openPostId: GetPost['id'] | null;
+  onPostOpen: (id: GetPost['id']) => void;
 };
 
 const PostItem = ({ post, user, openPostId, onPostOpen }: PostItemProps) => {
