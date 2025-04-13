@@ -1,26 +1,28 @@
 import React, { use, useEffect, useState } from 'react';
-import { Post } from '../types/Post';
+import { GetPost, PostPost } from '../types/Post';
 import PostItem from './PostItem';
-import { apiUrl } from '../utils/apiUrl';
 import { User } from '../types/User';
 import './PostList.scss';
 import AddPostForm from './AddPostForm';
-import { NewPost } from '../types/NewPost';
+import { useGetData } from '../hooks/useGetData';
+import { ApiEndpoints } from '../types/ApiEndpoints';
+import { usePostData } from '../hooks/usePostData';
 
 const PostList = () => {
-  const [posts, setPosts] = useState<Post[]>([]);
-  const [filteredPosts, setFilteredPosts] = useState<Post[]>([]);
-  const [isLoadingPosts, setIsLoadingPosts] = useState(false);
-  const [isLoadingUsers, setIsLoadingUsers] = useState(false);
-  const [isAddingNewPost, setIsAddingNewPost] = useState(false);
   const [isPostAdded, setIsPostAdded] = useState(false);
-  const [users, setUsers] = useState<User[]>([]);
-  const [openPostId, setOpenPostId] = useState<null | Post['id']>(null);
+
+  const [openPostId, setOpenPostId] = useState<null | GetPost['id']>(null);
   const [showForm, setShowForm] = useState(false);
   const [keyword, setKeyword] = useState<string | ''>('');
   const [authorId, setAuthorId] = useState<User['id'] | null>(null);
 
-  const handlePostOpen = (id: Post['id']) => {
+  const { data: posts, fetchData: getPosts, isLoading: isLoadingPosts } = useGetData(ApiEndpoints.posts);
+  const { data: users, isLoading: isLoadingUsers } = useGetData(ApiEndpoints.users);
+
+  const { fetchData: addPost, isLoading: isAddingNewPost } = usePostData(ApiEndpoints.posts);
+  const [filteredPosts, setFilteredPosts] = useState<GetPost[]>(posts);
+
+  const handlePostOpen = (id: GetPost['id']) => {
     if (openPostId === id) {
       setOpenPostId(null);
     } else {
@@ -33,45 +35,18 @@ const PostList = () => {
     setOpenPostId(null);
   };
 
-  const addNewPost = async (newPost: NewPost) => {
+  const handleAddNewPost = async (newPostData: PostPost) => {
     try {
-      setIsAddingNewPost(true);
-      const response = await fetch(`${apiUrl}/posts`, {
-        method: 'POST',
-        body: JSON.stringify({
-          title: newPost.title,
-          body: newPost.body,
-          userId: newPost.userId,
-        }),
-      });
-
-      if (!response.ok) {
-        throw new Error(`Error ${response.status}`);
-      }
-
-      const newPostData: Pick<Post, 'id'> = await response.json();
-
-      if (newPostData.id) {
-        setPosts((prev) => [{ ...newPost, ...newPostData }, ...prev]);
-        setFilteredPosts((prev) => [{ ...newPost, ...newPostData }, ...prev]);
-        setIsPostAdded(true);
-        setTimeout(() => {
-          setIsPostAdded(false);
-        }, 4000);
-
-        setShowForm(false);
-      } else {
-        throw new Error(`There was errow while adding news post - try again.`);
-      }
+      await addPost(newPostData);
+      setIsPostAdded(true);
+      getPosts();
+      setShowForm(false);
+      setTimeout(() => {
+        setIsPostAdded(false);
+      }, 4000);
     } catch (error) {
-      throw new Error(`There was error while adding new post: ${error}`);
-    } finally {
-      setIsAddingNewPost(false);
+      console.error('Failed to add new post:', error);
     }
-  };
-
-  const handleAddNewPost = (newPost: NewPost) => {
-    addNewPost(newPost);
   };
 
   useEffect(() => {
@@ -87,51 +62,6 @@ const PostList = () => {
 
     setFilteredPosts(result);
   }, [keyword, authorId, posts]);
-
-  useEffect(() => {
-    const fetchPosts = async () => {
-      try {
-        setIsLoadingPosts(true);
-        const response = await fetch(`${apiUrl}/posts`);
-
-        if (!response.ok) {
-          throw new Error(`Error ${response.status}`);
-        }
-
-        const data = await response.json();
-
-        setPosts(data);
-        setFilteredPosts(data);
-      } catch (error) {
-        throw new Error(`There was error while fetching posts: ${error}`);
-      } finally {
-        setIsLoadingPosts(false);
-      }
-    };
-
-    const fetchUsers = async () => {
-      try {
-        setIsLoadingUsers(true);
-
-        const response = await fetch(`${apiUrl}/users`);
-
-        if (!response.ok) {
-          throw new Error(`Error ${response.status}`);
-        }
-
-        const data = await response.json();
-
-        setUsers(data);
-      } catch (error) {
-        throw new Error(`There was error while fetching users: ${error}`);
-      } finally {
-        setIsLoadingUsers(false);
-      }
-    };
-
-    fetchPosts();
-    fetchUsers();
-  }, []);
 
   return (
     <div className='blog'>
@@ -164,7 +94,7 @@ const PostList = () => {
             <div className='by-author'>
               {users.map((user) => {
                 return (
-                  <button className={`${authorId === user.id ? 'active' : ''}`} onClick={() => setAuthorId(user.id)}>
+                  <button key={user.id} className={`${authorId === user.id ? 'active' : ''}`} onClick={() => setAuthorId(user.id)}>
                     {user.username}
                   </button>
                 );
